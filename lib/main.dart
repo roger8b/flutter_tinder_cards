@@ -42,9 +42,15 @@ class ProfileCard extends StatefulWidget {
 
 class _ProfileCardState extends State<ProfileCard> {
   Widget _buildBackground() {
-    return new Image.asset(
-      'assets/images/001.jpg',
-      fit: BoxFit.cover,
+
+    return PhotoBrowser(
+      photoAssetPaths: [
+        'assets/images/001.jpg',
+        'assets/images/002.jpg',
+        'assets/images/003.jpg',
+        'assets/images/004.jpg'
+      ],
+      visiblePhotoIndex: 0,
     );
   }
 
@@ -119,6 +125,179 @@ class _ProfileCardState extends State<ProfileCard> {
             ),
           ),
         ));
+  }
+}
+
+class PhotoBrowser extends StatefulWidget {
+  final List<String> photoAssetPaths;
+  final int visiblePhotoIndex;
+
+  PhotoBrowser({
+    key,
+    this.photoAssetPaths,
+    this.visiblePhotoIndex,
+  });
+
+  @override
+  _PhotoBrowserState createState() => _PhotoBrowserState();
+}
+
+class _PhotoBrowserState extends State<PhotoBrowser> {
+  int visiblePhotoIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    visiblePhotoIndex = widget.visiblePhotoIndex;
+  }
+
+  @override
+  void didUpdateWidget(PhotoBrowser oldWidget) {
+    if (widget.visiblePhotoIndex != oldWidget.visiblePhotoIndex) {
+      Future.delayed(Duration.zero, () =>
+      setState(() {
+        visiblePhotoIndex = widget.visiblePhotoIndex;
+      }));
+    }
+  }
+
+  void _prevImage() {
+    Future.delayed(Duration.zero, () =>
+    setState(() {
+      visiblePhotoIndex = visiblePhotoIndex > 0 ? visiblePhotoIndex - 1 : 0;
+    }));
+  }
+
+  void _nextImage() {
+    Future.delayed(Duration.zero, () =>
+    setState(() {
+      visiblePhotoIndex = visiblePhotoIndex < widget.photoAssetPaths.length - 1
+          ? visiblePhotoIndex + 1
+          : visiblePhotoIndex;
+    }));
+  }
+
+  Widget _buildPhotoControls() {
+    return new Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        new GestureDetector(
+          onTap: _prevImage,
+          child: FractionallySizedBox(
+            widthFactor: 0.5,
+            heightFactor: 1.0,
+            alignment: Alignment.topLeft,
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: _nextImage,
+          child: FractionallySizedBox(
+            widthFactor: 0.5,
+            heightFactor: 1.0,
+            alignment: Alignment.topRight,
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        Image.asset(
+          widget.photoAssetPaths[visiblePhotoIndex],
+          fit: BoxFit.cover,
+        ),
+        Positioned(
+          top: 0.0,
+          left: 0.0,
+          right: 0.0,
+          child: SelectedPhotoIndicator(
+            photoCount: widget.photoAssetPaths.length,
+            visiblePhotoIndex: visiblePhotoIndex,
+          ),
+        ),
+
+        _buildPhotoControls()
+      ],
+    );
+  }
+}
+
+class SelectedPhotoIndicator extends StatelessWidget {
+  final int photoCount;
+  final int visiblePhotoIndex;
+
+  SelectedPhotoIndicator({
+    this.photoCount,
+    this.visiblePhotoIndex,
+  });
+
+  Widget _buildInactiveIndicator() {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.only(left: 2.0, right: 2.0),
+        child: Container(
+          height: 3.0,
+          decoration: new BoxDecoration(
+            color: Colors.black.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(2.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveIndicator() {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.only(left: 2.0, right: 2.0),
+        child: Container(
+          height: 3.0,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0x22000000),
+                  spreadRadius: 0.0,
+                  blurRadius: 2.0,
+                  offset: const Offset(0.0, 1.0),
+                )
+              ]),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildIndicators() {
+    List<Widget> indicators = [];
+    for (int i = 0; i < photoCount; ++i) {
+      indicators.add(
+        i == visiblePhotoIndex
+            ? _buildActiveIndicator()
+            : _buildInactiveIndicator(),
+      );
+    }
+    return indicators;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Row(
+        children: _buildIndicators(),
+      ),
+    );
   }
 }
 
