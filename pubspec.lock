@@ -49,9 +49,11 @@ packages:
   fluttery:
     dependency: "direct main"
     description:
-      path: "/home/roger/AndroidStudioProjects/fluttery"
-      relative: false
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: c6371b677b33c953ee1e878f2d18b5039f1e76bc
+      url: "https://github.com/roger8b/fluttery.git"
+    source: git
     version: "0.0.7"
   matcher:
     dependency: transitive
